@@ -1,0 +1,5 @@
+build/*
+src/models/*
+bin/www
+**/generated/**
+**/scripts/**

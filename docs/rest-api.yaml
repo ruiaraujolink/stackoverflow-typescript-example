@@ -1,0 +1,447 @@
+openapi: 3.0.1
+info:
+  title: Rest Api
+  description: Rest Api
+  termsOfService: urn:tos
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: '5.0.0'
+
+servers:
+  - url: http://localhost:8080/api/v3
+
+security:
+  - Bearer: []
+
+tags:
+  - name: Users
+    description: Users Endpoints
+
+paths:
+  /utilizadores:
+    get:
+      tags:
+        - Users
+      summary: getUsers
+      operationId: getUsers
+      parameters:
+        - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/organizationPk'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/paged'
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGetUsersDto'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+    post:
+      tags:
+        - Users
+      summary: createUser
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCreateUserDto'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGetUserDto'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+  /utilizadores/{userPk}:
+    get:
+      tags:
+        - Users
+      summary: getUserByPk
+      operationId: getUserByPk
+      parameters:
+        - name: userPk
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGetUserDto'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+    put:
+      tags:
+        - Users
+      summary: updateUser
+      operationId: updateUser
+      parameters:
+        - name: userPk
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUpdateUserDto'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGetUserDto'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+    delete:
+      tags:
+        - Users
+      summary: deleteUser
+      operationId: deleteUser
+      parameters:
+        - name: userPk
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGetUserDto'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+components:
+  schemas:
+    ResponseGetUserObjectDto:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseDto'
+        - type: object
+          required:
+            - response
+          properties:
+            response:
+              $ref: '#/components/schemas/UserDto'
+
+    UserDto:
+      type: object
+      required:
+        - pk
+        - estado
+        - login
+        - nome
+        - perfis
+      properties:
+        pk:
+          type: integer
+          format: int64
+        login:
+          type: string
+        nome:
+          type: string
+        email:
+          type: string
+
+    GetUsersDto:
+      type: object
+      required:
+        - metadata
+        - payload
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MetadataDto'
+        payload:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+
+    ResponseGetUsersObjectDto:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseDto'
+        - type: object
+          required:
+            - response
+          properties:
+            response:
+              $ref: '#/components/schemas/GetUsersDto'
+
+    SystemDto:
+      type: object
+      required:
+        - pk
+        - codigo
+        - descricao
+      properties:
+        codigo:
+          type: string
+        descricao:
+          type: string
+        pk:
+          type: integer
+          format: int64
+
+    ResponseGetUserSystemsObjectDto:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseDto'
+        - type: object
+          required:
+            - response
+          properties:
+            response:
+              type: array
+              items:
+                $ref: '#/components/schemas/SystemDto'
+
+    UserStateDto:
+      type: object
+      required:
+        - pk
+        - codigo
+        - descricao
+      properties:
+        codigo:
+          type: string
+        descricao:
+          type: string
+        pk:
+          type: integer
+          format: int64
+
+    ResponseGetUserStatesObjectDto:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseDto'
+        - type: object
+          required:
+            - response
+          properties:
+            response:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserStateDto'
+
+    ErrorResponseDto:
+      type: object
+      required:
+        - message
+        - messageCode
+      properties:
+        message:
+          type: string
+        messageCode:
+          type: string
+          example: 'message_error_utilizador_not_found'
+        errorContext:
+          description: Any type
+
+    BaseResponseDto:
+      type: object
+      required:
+        - message
+        - messageCode
+      properties:
+        message:
+          type: string
+        messageCode:
+          type: string
+          example: 'message_error_utilizador_not_found'
+        # optionals:
+        #   type: object
+        #   additionalProperties:
+        #     type: string
+
+    RequestCreateUserDto:
+      type: object
+      required:
+        - login
+        - estadoPk
+        - nome
+        - email
+        - organizacoes
+      properties:
+        login:
+          type: string
+        estadoPk:
+          type: integer
+          format: int64
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+
+    MetadataDto:
+      type: object
+      required:
+        - currentPage
+        - totalPages
+        - pageSize
+        - numberElements
+        - totalElements
+        - sort
+      properties:
+        currentPage:
+          type: integer
+          description: 'Number of the current page'
+        totalPages:
+          type: integer
+          description: 'Number of total pages'
+        pageSize:
+          type: integer
+          description: 'Number of elements per page'
+        numberElements:
+          type: integer
+          description: 'Number of elements on the current page'
+        totalElements:
+          description: 'Total number of elements for the query'
+          type: integer
+        sort:
+          description: 'The current active sort'
+          example: ['pessoa.nome:asc']
+          type: array
+          items:
+            type: string
+
+    RequestUpdateUserDto:
+      type: object
+      required:
+        - login
+        - estadoPk
+        - nome
+        - email
+      properties:
+        login:
+          type: string
+        estadoPk:
+          type: integer
+          format: int64
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+
+  responses:
+    ErrorResponse:
+      description: Common error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+
+    UnauthorizedResponse:
+      description: The user have typed the wrong credentials or don't have an account. This error only shows on login.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+
+    ForbiddenResponse:
+      description: The user doesn't have permission to make the operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+
+    ResponseGetUserDto:
+      description: 'User response'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseGetUserObjectDto'
+
+    ResponseGetUsersDto:
+      description: 'Users response'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseGetUsersObjectDto'
+
+    ResponseGetUserStatesDto:
+      description: 'User states response'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseGetUserStatesObjectDto'
+
+    ResponseGetUserSystemsDto:
+      description: 'User systems response'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseGetUserSystemsObjectDto'
+
+  parameters:
+    name:
+      name: name
+      in: query
+      description: 'Name to search'
+      example: Tiago
+      schema:
+        type: string
+
+    organizationPk:
+      name: organizationPk
+      in: query
+      description: 'Pk of the organization to search'
+      example: 1996
+      schema:
+        type: integer
+        format: int64
+
+    pageSize:
+      name: pageSize
+      in: query
+      description: 'Number of elements per page'
+      example: 10
+      schema:
+        type: integer
+
+    pageNumber:
+      name: pageNumber
+      in: query
+      description: 'Selected page'
+      example: 0
+      schema:
+        type: integer
+
+    paged:
+      name: paged
+      in: query
+      description: 'Get data with pagination'
+      example: true
+      required: true
+      schema:
+        type: boolean
+        nullable: false
+
+    sort:
+      name: sort
+      in: query
+      description: 'Sorted request'
+      example: ['pessoa.nome:asc']
+      schema:
+        type: array
+        items:
+          type: string
+
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
